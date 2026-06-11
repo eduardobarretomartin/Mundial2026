@@ -64,8 +64,7 @@ const TEAMS = [
 
 // --- App State ---
 let state = {
-  participants: [{
- 
+  participants: [
     {
       "name": "Eduardo BM",
       "teams": [
@@ -154,7 +153,8 @@ let state = {
       "spent": 340,
       "topScorer": "Harry Kane",
       "dateSubmitted": "2026-06-11T18:55:25.832Z"
-    };],
+    }
+  ],
   
   results: {
     teamAchievements: {}, // teamId -> { wins, draws, firstInGroup, secondInGroup, w32, w16, w8, w4, w3rd, wFinal }
