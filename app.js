@@ -10,7 +10,7 @@ const TEAMS = [
   { id: 2, name: "Francia", block: 1, price: 167, code: "fr" },
   { id: 3, name: "Inglaterra", block: 1, price: 143, code: "gb-eng" },
   { id: 4, name: "Brasil", block: 1, price: 111, code: "br" },
-  { id: 5, name: "Argentina", block: 1, price: 93, code: "ar" },
+  { id: 5, name: "Argentina", block: 1, price: 111, code: "ar" },
 
   // Bloque 2
   { id: 6, name: "Portugal", block: 2, price: 83, code: "pt" },
@@ -69,7 +69,7 @@ let state = {
     teamAchievements: {}, // teamId -> { wins, draws, firstInGroup, secondInGroup, w32, w16, w8, w4, w3rd, wFinal }
     topScorers: "" // text input of comma separated top scorers
   },
-  deadline: "2026-06-11T18:00:00", // Default lock time (first match day)
+  deadline: "2026-06-11T20:30:00", // Cierre hoy a las 20:30 hora de Berlín
   ticketPrice: 10 // €10 entry
 };
 
@@ -1243,7 +1243,7 @@ function loadMockData() {
     {
       name: "Sofía",
       teams: [5, 11, 16, 22, 37], // Argentina, Colombia, Suiza, Suecia, Costa
-      spent: 143,
+      spent: 161, // Argentina is now 111
       topScorer: "Messi",
       dateSubmitted: new Date().toISOString()
     },
@@ -1283,8 +1283,7 @@ function loadMockData() {
   state.results.teamAchievements[3] = { wins: 2, draws: 1, firstInGroup: true, secondInGroup: false, w32: true, w16: true, w8: true, w4: false, w3rd: true, wFinal: false };
 
   state.results.topScorers = "Mbappé, Messi";
-  // Set deadline as 1 day from now
-  state.deadline = new Date(Date.now() + 24 * 3600 * 1000).toISOString().slice(0, 16);
+  state.deadline = "2026-06-11T20:30"; // Cierre hoy a las 20:30 hora de Berlín
   state.ticketPrice = 10;
   
   saveState();

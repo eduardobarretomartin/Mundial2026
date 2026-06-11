@@ -260,177 +260,176 @@
 
       <!-- VIEW 4: RESULTS MANAGER (ADMIN) -->
       <section id="tab-results" class="tab-content">
-        <div class="admin-grid">
+        
+        <!-- Team achievements editor (Full Width) -->
+        <div class="card" style="display: flex; flex-direction: column; margin-bottom: 1.5rem;">
+          <h2 class="card-title">
+            <span>Hitos de Equipos</span>
+            <span class="accent-text">Edita los logros de cada selección</span>
+          </h2>
           
-          <!-- Team achievements editor -->
-          <div class="card" style="display: flex; flex-direction: column;">
-            <h2 class="card-title">
-              <span>Hitos de Equipos</span>
-              <span class="accent-text">Edita los logros de cada selección</span>
-            </h2>
-            
-            <!-- Team Search Filter -->
-            <div class="search-wrapper">
-              <span class="search-icon">🔍</span>
-              <input type="text" class="input-control search-input" id="admin-team-search" placeholder="Buscar país...">
-            </div>
-
-            <div class="results-table-container">
-              <table class="results-edit-table">
-                <thead>
-                  <tr>
-                    <th>País</th>
-                    <th style="text-align: center; width: 60px;">Wins GP</th>
-                    <th style="text-align: center; width: 60px;">Draws GP</th>
-                    <th style="text-align: center; width: 50px;">1º Gp</th>
-                    <th style="text-align: center; width: 50px;">2º Gp</th>
-                    <th style="text-align: center; width: 45px;">1/32</th>
-                    <th style="text-align: center; width: 45px;">1/8</th>
-                    <th style="text-align: center; width: 45px;">1/4</th>
-                    <th style="text-align: center; width: 45px;">1/2</th>
-                    <th style="text-align: center; width: 45px;">3ro</th>
-                    <th style="text-align: center; width: 45px;">Fin</th>
-                  </tr>
-                </thead>
-                <tbody id="admin-teams-tbody">
-                  <!-- Generated dynamically in JS -->
-                </tbody>
-              </table>
-            </div>
+          <!-- Team Search Filter -->
+          <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="input-control search-input" id="admin-team-search" placeholder="Buscar país...">
           </div>
 
-          <!-- Tournament Progress (Visual Bracket & Top Scorers) -->
-          <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-            <!-- Top Scorers Manager -->
-            <div class="card">
-              <h2 class="card-title">
-                <span>Máximos Goleadores</span>
-                <span class="accent-text">Para el extra de 4 puntos</span>
-              </h2>
-              <div class="form-group">
-                <label for="admin-top-scorers-input">Goleador(es) Oficial(es) (Separados por comas)</label>
-                <input type="text" id="admin-top-scorers-input" class="input-control" placeholder="Ej. Mbappé, Haaland, Messi">
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">
-                  Introduce el nombre o nombres de los jugadores que lideran la tabla de goleadores. Si coincide con la predicción de algún participante, se le sumarán 4 puntos.
-                </p>
-              </div>
-              <button class="btn btn-secondary" id="btn-save-scorers" style="width: 100%;">
-                💾 Guardar Goleadores
-              </button>
-            </div>
+          <div class="results-table-container">
+            <table class="results-edit-table">
+              <thead>
+                <tr>
+                  <th>País</th>
+                  <th style="text-align: center; width: 60px;">Wins GP</th>
+                  <th style="text-align: center; width: 60px;">Draws GP</th>
+                  <th style="text-align: center; width: 50px;">1º Gp</th>
+                  <th style="text-align: center; width: 50px;">2º Gp</th>
+                  <th style="text-align: center; width: 45px;">1/32</th>
+                  <th style="text-align: center; width: 45px;">1/8</th>
+                  <th style="text-align: center; width: 45px;">1/4</th>
+                  <th style="text-align: center; width: 45px;">1/2</th>
+                  <th style="text-align: center; width: 45px;">3ro</th>
+                  <th style="text-align: center; width: 45px;">Fin</th>
+                </tr>
+              </thead>
+              <tbody id="admin-teams-tbody">
+                <!-- Generated dynamically in JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-            <!-- Visual bracket from Quarterfinals -->
-            <div class="card">
-              <h2 class="card-title">
-                <span>Cuadro Final (Hitos Rápidos)</span>
-                <span class="accent-text">Haz clic en el ganador para avanzar</span>
-              </h2>
-              <div class="bracket-container">
-                <div class="bracket-rounds">
-                  
-                  <!-- Quarterfinals (4 matches) -->
-                  <div class="bracket-round">
-                    <h3 style="font-size: 0.75rem; color: var(--text-muted); text-align: center; text-transform: uppercase;">Cuartos</h3>
-                    
-                    <!-- Q1 -->
-                    <div class="bracket-match">
-                      <div class="bracket-match-team" id="b-match-q1-t1" onclick="appController.handleBracketClick('q1', 1)">
-                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                      <div class="bracket-match-team" id="b-match-q1-t2" onclick="appController.handleBracketClick('q1', 2)">
-                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                    </div>
-
-                    <!-- Q2 -->
-                    <div class="bracket-match">
-                      <div class="bracket-match-team" id="b-match-q2-t1" onclick="appController.handleBracketClick('q2', 1)">
-                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                      <div class="bracket-match-team" id="b-match-q2-t2" onclick="appController.handleBracketClick('q2', 2)">
-                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                    </div>
-
-                    <!-- Q3 -->
-                    <div class="bracket-match">
-                      <div class="bracket-match-team" id="b-match-q3-t1" onclick="appController.handleBracketClick('q3', 1)">
-                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                      <div class="bracket-match-team" id="b-match-q3-t2" onclick="appController.handleBracketClick('q3', 2)">
-                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                    </div>
-
-                    <!-- Q4 -->
-                    <div class="bracket-match">
-                      <div class="bracket-match-team" id="b-match-q4-t1" onclick="appController.handleBracketClick('q4', 1)">
-                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                      <div class="bracket-match-team" id="b-match-q4-t2" onclick="appController.handleBracketClick('q4', 2)">
-                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Semifinals (2 matches) -->
-                  <div class="bracket-round">
-                    <h3 style="font-size: 0.75rem; color: var(--text-muted); text-align: center; text-transform: uppercase;">Semifinal</h3>
-                    
-                    <!-- S1 -->
-                    <div class="bracket-match" style="margin: 3.5rem 0;">
-                      <div class="bracket-match-team" id="b-match-s1-t1" onclick="appController.handleBracketClick('s1', 1)">
-                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                      <div class="bracket-match-team" id="b-match-s1-t2" onclick="appController.handleBracketClick('s1', 2)">
-                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                    </div>
-
-                    <!-- S2 -->
-                    <div class="bracket-match" style="margin: 3.5rem 0;">
-                      <div class="bracket-match-team" id="b-match-s2-t1" onclick="appController.handleBracketClick('s2', 1)">
-                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                      <div class="bracket-match-team" id="b-match-s2-t2" onclick="appController.handleBracketClick('s2', 2)">
-                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Final / Third Place (2 matches) -->
-                  <div class="bracket-round">
-                    <h3 style="font-size: 0.75rem; color: var(--text-muted); text-align: center; text-transform: uppercase;">Final & 3º Puesto</h3>
-                    
-                    <!-- Final -->
-                    <div class="bracket-match" style="margin-top: 1rem;">
-                      <div class="wc-badge" style="border-radius: 0; text-align: center; font-size: 0.65rem; padding: 0.15rem;">Final</div>
-                      <div class="bracket-match-team" id="b-match-f-t1" onclick="appController.handleBracketClick('f', 1)">
-                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                      <div class="bracket-match-team" id="b-match-f-t2" onclick="appController.handleBracketClick('f', 2)">
-                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                    </div>
-
-                    <!-- Third Place -->
-                    <div class="bracket-match" style="margin-top: 2rem;">
-                      <div class="wc-badge" style="border-radius: 0; text-align: center; font-size: 0.65rem; padding: 0.15rem; background: linear-gradient(135deg, #a78bfa 0%, #4c1d95 100%);">3º Puesto</div>
-                      <div class="bracket-match-team" id="b-match-t-t1" onclick="appController.handleBracketClick('t', 1)">
-                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                      <div class="bracket-match-team" id="b-match-t-t2" onclick="appController.handleBracketClick('t', 2)">
-                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center; font-style: italic;">
-                Nota: Para cambiar los equipos de este cuadro final, selecciónalos primero en la tabla de la izquierda marcando el check "1/4" en su correspondiente fila.
+        <!-- Lower grid for scorers and visual bracket (Side-by-Side) -->
+        <div class="admin-grid">
+          
+          <!-- Top Scorers Manager -->
+          <div class="card" style="display: flex; flex-direction: column; justify-content: flex-start;">
+            <h2 class="card-title">
+              <span>Máximos Goleadores</span>
+              <span class="accent-text">Para el extra de 4 puntos</span>
+            </h2>
+            <div class="form-group" style="flex-grow: 1;">
+              <label for="admin-top-scorers-input">Goleador(es) Oficial(es) (Separados por comas)</label>
+              <input type="text" id="admin-top-scorers-input" class="input-control" placeholder="Ej. Mbappé, Haaland, Messi">
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">
+                Introduce el nombre o nombres de los jugadores que lideran la tabla de goleadores. Si coincide con la predicción de algún participante, se le sumarán 4 puntos.
               </p>
             </div>
+            <button class="btn btn-secondary" id="btn-save-scorers" style="width: 100%; margin-top: 1rem;">
+              💾 Guardar Goleadores
+            </button>
+          </div>
+
+          <!-- Visual bracket from Quarterfinals -->
+          <div class="card">
+            <h2 class="card-title">
+              <span>Cuadro Final (Hitos Rápidos)</span>
+              <span class="accent-text">Haz clic en el ganador para avanzar</span>
+            </h2>
+            <div class="bracket-container">
+              <div class="bracket-rounds">
+                
+                <!-- Quarterfinals (4 matches) -->
+                <div class="bracket-round">
+                  <h3 style="font-size: 0.75rem; color: var(--text-muted); text-align: center; text-transform: uppercase;">Cuartos</h3>
+                  
+                  <!-- Q1 -->
+                  <div class="bracket-match">
+                    <div class="bracket-match-team" id="b-match-q1-t1">
+                      <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                    <div class="bracket-match-team" id="b-match-q1-t2">
+                      <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                  </div>
+
+                  <!-- Q2 -->
+                  <div class="bracket-match">
+                    <div class="bracket-match-team" id="b-match-q2-t1">
+                      <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                    <div class="bracket-match-team" id="b-match-q2-t2">
+                      <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                  </div>
+
+                  <!-- Q3 -->
+                  <div class="bracket-match">
+                    <div class="bracket-match-team" id="b-match-q3-t1">
+                      <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                    <div class="bracket-match-team" id="b-match-q3-t2">
+                      <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                  </div>
+
+                  <!-- Q4 -->
+                  <div class="bracket-match">
+                    <div class="bracket-match-team" id="b-match-q4-t1">
+                      <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                    <div class="bracket-match-team" id="b-match-q4-t2">
+                      <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Semifinals (2 matches) -->
+                <div class="bracket-round">
+                  <h3 style="font-size: 0.75rem; color: var(--text-muted); text-align: center; text-transform: uppercase;">Semifinal</h3>
+                  
+                  <!-- S1 -->
+                  <div class="bracket-match" style="margin: 3.5rem 0;">
+                    <div class="bracket-match-team" id="b-match-s1-t1">
+                      <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                    <div class="bracket-match-team" id="b-match-s1-t2">
+                      <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                  </div>
+
+                  <!-- S2 -->
+                  <div class="bracket-match" style="margin: 3.5rem 0;">
+                    <div class="bracket-match-team" id="b-match-s2-t1">
+                      <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                    <div class="bracket-match-team" id="b-match-s2-t2">
+                      <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Final / Third Place (2 matches) -->
+                <div class="bracket-round">
+                  <h3 style="font-size: 0.75rem; color: var(--text-muted); text-align: center; text-transform: uppercase;">Final & 3º Puesto</h3>
+                  
+                  <!-- Final -->
+                  <div class="bracket-match" style="margin-top: 1rem;">
+                    <div class="wc-badge" style="border-radius: 0; text-align: center; font-size: 0.65rem; padding: 0.15rem;">Final</div>
+                    <div class="bracket-match-team" id="b-match-f-t1">
+                      <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                    <div class="bracket-match-team" id="b-match-f-t2">
+                      <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                  </div>
+
+                  <!-- Third Place -->
+                  <div class="bracket-match" style="margin-top: 2rem;">
+                    <div class="wc-badge" style="border-radius: 0; text-align: center; font-size: 0.65rem; padding: 0.15rem; background: linear-gradient(135deg, #a78bfa 0%, #4c1d95 100%);">3º Puesto</div>
+                    <div class="bracket-match-team" id="b-match-t-t1">
+                      <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                    <div class="bracket-match-team" id="b-match-t-t2">
+                      <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center; font-style: italic;">
+              Nota: Para cambiar los equipos de este cuadro final, selecciónalos primero en la tabla superior marcando el check "1/8" en su correspondiente fila.
+            </p>
           </div>
 
         </div>
