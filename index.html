@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Porra Mundial 2026 - Live Leaderboard & Bet Manager</title>
+  <meta name="description" content="Gestiona e interactúa con tu porra del Mundial 2026 de fútbol. Valida presupuestos, exporta en formato de texto y sigue los resultados en tiempo real con ranking en vivo.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- HEADER -->
+    <header>
+      <div class="brand-section">
+        <div class="brand-logo-area">
+          <span class="wc-badge">Mundial 2026</span>
+        </div>
+        <h1>PORRA DE AMIGOS MUNDIAL 2026</h1>
+      </div>
+      
+      <div class="header-info-bar">
+        <div class="info-item" id="header-deadline-box">
+          <span class="icon">⏰</span>
+          <span>Cierre: <strong id="header-deadline-time">--/--/---- --:-- h</strong></span>
+        </div>
+        <div class="info-item" id="header-countdown-box">
+          <span class="icon">⏳</span>
+          <span id="header-countdown" class="countdown-timer">Cargando...</span>
+        </div>
+        <div class="info-item">
+          <span class="icon">💰</span>
+          <span>Bote Total: <strong id="header-total-pool">0,00 €</strong></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="tab-leaderboard">
+        <span>🏆</span> Clasificación
+      </button>
+      <button class="tab-btn" data-tab="tab-builder">
+        <span>✏️</span> Hacer Porra
+      </button>
+      <button class="tab-btn" data-tab="tab-participants">
+        <span>👥</span> Porras Recibidas (<span id="nav-participants-count">0</span>)
+      </button>
+      <button class="tab-btn" data-tab="tab-results">
+        <span>⚽</span> Resultados WC
+      </button>
+      <button class="tab-btn" data-tab="tab-settings">
+        <span>⚙️</span> Ajustes
+      </button>
+    </nav>
+
+    <!-- MAIN VIEWPORT -->
+    <main>
+
+      <!-- VIEW 1: LEADERBOARD -->
+      <section id="tab-leaderboard" class="tab-content active">
+        <div class="dashboard-grid">
+          
+          <!-- Leaderboard Table Card -->
+          <div class="card">
+            <h2 class="card-title">
+              <span>Clasificación en Vivo</span>
+              <span class="accent-text">Ordenado por puntos y presupuesto gastado</span>
+            </h2>
+            <div style="overflow-x: auto;">
+              <table class="leaderboard-table" id="leaderboard-table">
+                <thead>
+                  <tr>
+                    <th style="width: 60px; text-align: center;">Pos</th>
+                    <th>Nombre</th>
+                    <th>Equipos Seleccionados</th>
+                    <th style="text-align: center;">Goleador</th>
+                    <th style="text-align: center;">Gasto</th>
+                    <th style="text-align: center;">Puntos</th>
+                  </tr>
+                </thead>
+                <tbody id="leaderboard-tbody">
+                  <!-- Generated dynamically in JS -->
+                  <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                      No hay porras registradas todavía. ¡Sé el primero en el menú "Hacer Porra"!
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Side Panel: Prizes & Stats -->
+          <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Prize Pool Distribution -->
+            <div class="card">
+              <h2 class="card-title">
+                <span>Reparto de Premios</span>
+                <span class="accent-text" id="prize-pool-calculation">10,00 € por porra</span>
+              </h2>
+              <div class="prize-distribution-container" id="prizes-container">
+                <!-- Generated dynamically in JS -->
+              </div>
+            </div>
+
+            <!-- Scoring Cheat Sheet -->
+            <div class="card">
+              <h2 class="card-title">
+                <span>Puntuación Oficial</span>
+              </h2>
+              <div style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.5rem; color: var(--text-muted);">
+                <div><strong>Fase de Grupos:</strong> Victoria = 3 pts | Empate = 1 pt.</div>
+                <div><strong>Clasificación Grupos:</strong> 1º de grupo = 2 pts | 2º de grupo = 1 pt.</div>
+                <div><strong>Fase de Eliminatorias:</strong></div>
+                <div style="padding-left: 0.75rem; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 0.25rem;">
+                  <div>• Ganar Dieciseisavos (1/16): 3 pts</div>
+                  <div>• Ganar Octavos (1/8): 4 pts</div>
+                  <div>• Ganar Cuartos (1/4): 5 pts</div>
+                  <div>• Ganar Semifinal: 6 pts</div>
+                  <div>• Ganar Tercer Puesto: 1 pt</div>
+                  <div>• Ganar Final (Campeón): 7 pts</div>
+                </div>
+                <div><strong>Goleador:</strong> Máximo goleador correcto = 4 pts.</div>
+                <div style="margin-top: 0.5rem; color: var(--color-secondary); font-style: italic; border-top: 1px dashed var(--border-color); padding-top: 0.5rem;">
+                  * Criterio de desempate en la tabla: Gana quien haya gastado menos presupuesto (Spent).
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIEW 2: BET BUILDER & IMPORTER -->
+      <section id="tab-builder" class="tab-content">
+        <div class="bet-builder-grid">
+          
+          <!-- Team Selection Areas -->
+          <div class="blocks-container">
+            <!-- Deadline Locked Alert -->
+            <div id="builder-locked-notice" class="deadline-locked-notice" style="display: none;">
+              <span>⚠️</span>
+              <span><strong>Porras Cerradas:</strong> Se ha superado la hora límite de entrega. No es posible guardar o importar nuevas porras.</span>
+            </div>
+
+            <!-- Block 1 -->
+            <div class="block-section">
+              <div class="block-header">
+                <span>Bloque 1</span>
+                <span class="block-tag">Favoritos A</span>
+              </div>
+              <div class="teams-list-grid" id="teams-block-1"></div>
+            </div>
+
+            <!-- Block 2 -->
+            <div class="block-section">
+              <div class="block-header">
+                <span>Bloque 2</span>
+                <span class="block-tag">Favoritos B</span>
+              </div>
+              <div class="teams-list-grid" id="teams-block-2"></div>
+            </div>
+
+            <!-- Block 3 -->
+            <div class="block-section">
+              <div class="block-header">
+                <span>Bloque 3</span>
+                <span class="block-tag">Medios / Competitivos</span>
+              </div>
+              <div class="teams-list-grid" id="teams-block-3"></div>
+            </div>
+
+            <!-- Block 4 -->
+            <div class="block-section">
+              <div class="block-header">
+                <span>Bloque 4</span>
+                <span class="block-tag">Modestos / Sorpresas</span>
+              </div>
+              <div class="teams-list-grid" id="teams-block-4"></div>
+            </div>
+          </div>
+
+          <!-- Summary & Form -->
+          <div class="bet-summary-panel">
+            <div class="card">
+              <h2 class="card-title">Tu Selección</h2>
+              
+              <!-- Circular Budget Status -->
+              <div class="budget-circle-container">
+                <div class="budget-circle ok" id="budget-circle-elem">
+                  <span class="budget-value" id="budget-spent-val">0</span>
+                  <span class="budget-label">Presupuesto</span>
+                </div>
+              </div>
+
+              <!-- Real-time Validations -->
+              <div class="status-validations" style="margin-bottom: 1.25rem;">
+                <div class="validation-item fail" id="valid-budget">
+                  <span class="icon">✖</span>
+                  <span>Presupuesto (máx 350 pts): <span id="summary-price-spent">0</span>/350</span>
+                </div>
+                <div class="validation-item fail" id="valid-count">
+                  <span class="icon">✖</span>
+                  <span>Número de equipos (mín 4, máx 7): <span id="summary-teams-count">0</span></span>
+                </div>
+                <div class="validation-item fail" id="valid-blocks">
+                  <span class="icon">✖</span>
+                  <span>Al menos 1 equipo por bloque (B1, B2, B3, B4)</span>
+                </div>
+              </div>
+
+              <!-- Bet submission form -->
+              <form id="bet-form" onsubmit="return false;">
+                <div class="form-group">
+                  <label for="player-name-input">Nombre del Participante</label>
+                  <input type="text" id="player-name-input" class="input-control" placeholder="Ej. Juan Pérez" required>
+                </div>
+                <div class="form-group">
+                  <label for="top-scorer-input">Máximo Goleador del Mundial</label>
+                  <input type="text" id="top-scorer-input" class="input-control" placeholder="Ej. Mbappé o Messi" required>
+                </div>
+                
+                <div class="actions-row" style="margin-top: 1rem;">
+                  <button type="button" class="btn" id="btn-save-bet" style="flex: 1;">
+                    💾 Registrar Porra
+                  </button>
+                  <button type="button" class="btn btn-secondary" id="btn-export-text" style="padding: 0.75rem;">
+                    📋 Copiar Texto
+                  </button>
+                </div>
+              </form>
+
+              <!-- Import from text box -->
+              <div class="text-import-box">
+                <h3 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+                  Importar desde Formato de Texto
+                </h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                  Pega tu mensaje de porra con el formato de <strong>PorraMundialTexto</strong> para importarlo automáticamente:
+                </p>
+                <textarea class="input-control textarea-control" id="import-text-area" placeholder="NOMBRE: Pepito&#10;PRECIO: 350&#10;España&#10;Alemania&#10;EEUU&#10;Escocia&#10;...&#10;MÁXIMO GOLEADOR: Mbappé"></textarea>
+                <button type="button" class="btn btn-secondary" id="btn-import-text" style="width: 100%; margin-top: 0.5rem; font-size: 0.85rem;">
+                  📥 Importar y Cargar en el Creador
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIEW 3: REGISTERED BETS -->
+      <section id="tab-participants" class="tab-content">
+        <div class="participants-grid" id="participants-grid">
+          <!-- Generated dynamically in JS -->
+        </div>
+      </section>
+
+      <!-- VIEW 4: RESULTS MANAGER (ADMIN) -->
+      <section id="tab-results" class="tab-content">
+        <div class="admin-grid">
+          
+          <!-- Team achievements editor -->
+          <div class="card" style="display: flex; flex-direction: column;">
+            <h2 class="card-title">
+              <span>Hitos de Equipos</span>
+              <span class="accent-text">Edita los logros de cada selección</span>
+            </h2>
+            
+            <!-- Team Search Filter -->
+            <div class="search-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="input-control search-input" id="admin-team-search" placeholder="Buscar país...">
+            </div>
+
+            <div class="results-table-container">
+              <table class="results-edit-table">
+                <thead>
+                  <tr>
+                    <th>País</th>
+                    <th style="text-align: center; width: 60px;">Wins GP</th>
+                    <th style="text-align: center; width: 60px;">Draws GP</th>
+                    <th style="text-align: center; width: 50px;">1º Gp</th>
+                    <th style="text-align: center; width: 50px;">2º Gp</th>
+                    <th style="text-align: center; width: 45px;">1/32</th>
+                    <th style="text-align: center; width: 45px;">1/8</th>
+                    <th style="text-align: center; width: 45px;">1/4</th>
+                    <th style="text-align: center; width: 45px;">1/2</th>
+                    <th style="text-align: center; width: 45px;">3ro</th>
+                    <th style="text-align: center; width: 45px;">Fin</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-teams-tbody">
+                  <!-- Generated dynamically in JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Tournament Progress (Visual Bracket & Top Scorers) -->
+          <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Top Scorers Manager -->
+            <div class="card">
+              <h2 class="card-title">
+                <span>Máximos Goleadores</span>
+                <span class="accent-text">Para el extra de 4 puntos</span>
+              </h2>
+              <div class="form-group">
+                <label for="admin-top-scorers-input">Goleador(es) Oficial(es) (Separados por comas)</label>
+                <input type="text" id="admin-top-scorers-input" class="input-control" placeholder="Ej. Mbappé, Haaland, Messi">
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">
+                  Introduce el nombre o nombres de los jugadores que lideran la tabla de goleadores. Si coincide con la predicción de algún participante, se le sumarán 4 puntos.
+                </p>
+              </div>
+              <button class="btn btn-secondary" id="btn-save-scorers" style="width: 100%;">
+                💾 Guardar Goleadores
+              </button>
+            </div>
+
+            <!-- Visual bracket from Quarterfinals -->
+            <div class="card">
+              <h2 class="card-title">
+                <span>Cuadro Final (Hitos Rápidos)</span>
+                <span class="accent-text">Haz clic en el ganador para avanzar</span>
+              </h2>
+              <div class="bracket-container">
+                <div class="bracket-rounds">
+                  
+                  <!-- Quarterfinals (4 matches) -->
+                  <div class="bracket-round">
+                    <h3 style="font-size: 0.75rem; color: var(--text-muted); text-align: center; text-transform: uppercase;">Cuartos</h3>
+                    
+                    <!-- Q1 -->
+                    <div class="bracket-match">
+                      <div class="bracket-match-team" id="b-match-q1-t1" onclick="appController.handleBracketClick('q1', 1)">
+                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                      <div class="bracket-match-team" id="b-match-q1-t2" onclick="appController.handleBracketClick('q1', 2)">
+                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="bracket-match">
+                      <div class="bracket-match-team" id="b-match-q2-t1" onclick="appController.handleBracketClick('q2', 1)">
+                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                      <div class="bracket-match-team" id="b-match-q2-t2" onclick="appController.handleBracketClick('q2', 2)">
+                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="bracket-match">
+                      <div class="bracket-match-team" id="b-match-q3-t1" onclick="appController.handleBracketClick('q3', 1)">
+                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                      <div class="bracket-match-team" id="b-match-q3-t2" onclick="appController.handleBracketClick('q3', 2)">
+                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="bracket-match">
+                      <div class="bracket-match-team" id="b-match-q4-t1" onclick="appController.handleBracketClick('q4', 1)">
+                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                      <div class="bracket-match-team" id="b-match-q4-t2" onclick="appController.handleBracketClick('q4', 2)">
+                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Semifinals (2 matches) -->
+                  <div class="bracket-round">
+                    <h3 style="font-size: 0.75rem; color: var(--text-muted); text-align: center; text-transform: uppercase;">Semifinal</h3>
+                    
+                    <!-- S1 -->
+                    <div class="bracket-match" style="margin: 3.5rem 0;">
+                      <div class="bracket-match-team" id="b-match-s1-t1" onclick="appController.handleBracketClick('s1', 1)">
+                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                      <div class="bracket-match-team" id="b-match-s1-t2" onclick="appController.handleBracketClick('s1', 2)">
+                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                    </div>
+
+                    <!-- S2 -->
+                    <div class="bracket-match" style="margin: 3.5rem 0;">
+                      <div class="bracket-match-team" id="b-match-s2-t1" onclick="appController.handleBracketClick('s2', 1)">
+                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                      <div class="bracket-match-team" id="b-match-s2-t2" onclick="appController.handleBracketClick('s2', 2)">
+                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Final / Third Place (2 matches) -->
+                  <div class="bracket-round">
+                    <h3 style="font-size: 0.75rem; color: var(--text-muted); text-align: center; text-transform: uppercase;">Final & 3º Puesto</h3>
+                    
+                    <!-- Final -->
+                    <div class="bracket-match" style="margin-top: 1rem;">
+                      <div class="wc-badge" style="border-radius: 0; text-align: center; font-size: 0.65rem; padding: 0.15rem;">Final</div>
+                      <div class="bracket-match-team" id="b-match-f-t1" onclick="appController.handleBracketClick('f', 1)">
+                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                      <div class="bracket-match-team" id="b-match-f-t2" onclick="appController.handleBracketClick('f', 2)">
+                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                    </div>
+
+                    <!-- Third Place -->
+                    <div class="bracket-match" style="margin-top: 2rem;">
+                      <div class="wc-badge" style="border-radius: 0; text-align: center; font-size: 0.65rem; padding: 0.15rem; background: linear-gradient(135deg, #a78bfa 0%, #4c1d95 100%);">3º Puesto</div>
+                      <div class="bracket-match-team" id="b-match-t-t1" onclick="appController.handleBracketClick('t', 1)">
+                        <span>Flag 1</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                      <div class="bracket-match-team" id="b-match-t-t2" onclick="appController.handleBracketClick('t', 2)">
+                        <span>Flag 2</span> <span class="b-team-name">Cargando...</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center; font-style: italic;">
+                Nota: Para cambiar los equipos de este cuadro final, selecciónalos primero en la tabla de la izquierda marcando el check "1/4" en su correspondiente fila.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIEW 5: SETTINGS / ADJUSTMENTS -->
+      <section id="tab-settings" class="tab-content">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          
+          <!-- Configurations Card -->
+          <div class="card" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <h2 class="card-title">Configuración de la Porra</h2>
+            
+            <div class="form-group">
+              <label for="settings-deadline">Fecha y Hora Límite de Entrega</label>
+              <input type="datetime-local" id="settings-deadline" class="input-control">
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Una vez superada esta fecha y hora, no se permitirá agregar, editar o importar porras. Las porras actuales quedarán fijadas.
+              </p>
+            </div>
+
+            <div class="form-group">
+              <label for="settings-price">Precio de la Apuesta (Bote por persona)</label>
+              <div style="position: relative;">
+                <input type="number" id="settings-price" class="input-control" style="width: 100%; padding-right: 2rem;" value="10" min="0">
+                <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-weight: bold;">€</span>
+              </div>
+            </div>
+
+            <button class="btn" id="btn-save-settings" style="width: 100%;">
+              💾 Guardar Ajustes
+            </button>
+            
+            <hr style="border-color: var(--border-color); margin: 0.5rem 0;">
+            
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--color-accent);">Acciones de Emergencia</h3>
+            <div class="actions-row">
+              <button class="btn btn-secondary" id="btn-load-mock" style="flex: 1; font-size: 0.85rem;">
+                🧪 Cargar Datos Demo
+              </button>
+              <button class="btn btn-danger" id="btn-clear-data" style="flex: 1; font-size: 0.85rem;">
+                💥 Borrar Todo
+              </button>
+            </div>
+          </div>
+
+          <!-- Import / Export State Card -->
+          <div class="card" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <h2 class="card-title">Compartir / Guardar Estado</h2>
+            
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+              Como esta aplicación funciona localmente en tu navegador, usa estas herramientas para guardar la base de datos de tu porra en un archivo y poder compartirla con tus amigos para que todos vean el mismo ranking en tiempo real.
+            </div>
+
+            <div class="form-group">
+              <label>Exportar Datos de la Porra</label>
+              <button class="btn btn-secondary" id="btn-export-json" style="width: 100%;">
+                📤 Descargar Archivo JSON de Porra
+              </button>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Guarda un archivo `.json` con todos los participantes, sus elecciones y los resultados cargados.
+              </p>
+            </div>
+
+            <div class="form-group">
+              <label>Importar Datos de la Porra</label>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="file" id="file-import-json" accept=".json" style="display: none;">
+                <button class="btn btn-secondary" id="btn-trigger-file" style="flex: 1;">
+                  📂 Seleccionar Archivo...
+                </button>
+              </div>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;" id="imported-file-name">
+                Ningún archivo seleccionado.
+              </p>
+            </div>
+
+            <button class="btn" id="btn-import-json-apply" style="width: 100%;" disabled>
+              📥 Cargar Archivo Seleccionado
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- NOTIFICATION BAR -->
+    <div class="notification" id="toast-notification">
+      <span id="toast-icon">ℹ️</span>
+      <span id="toast-message">Notificación</span>
+    </div>
+
+    <!-- FOOTER -->
+    <footer style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.8rem; color: var(--text-muted);">
+      <div>Diseñado para el Mundial de Fútbol 2026. ¡Que gane el mejor! ⚽🏆</div>
+    </footer>
+
+  </div>
+
+  <!-- CORE SCRIPTS -->
+  <script src="app.js"></script>
+</body>
+</html>
