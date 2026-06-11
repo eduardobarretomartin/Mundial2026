@@ -64,7 +64,98 @@ const TEAMS = [
 
 // --- App State ---
 let state = {
-  participants: [],
+  participants: [{
+ 
+    {
+      "name": "Eduardo BM",
+      "teams": [
+        2,
+        5,
+        10,
+        13,
+        20,
+        25,
+        33
+      ],
+      "spent": 346,
+      "topScorer": "Oyarzábal",
+      "dateSubmitted": "2026-06-11T18:51:16.423Z"
+    },
+    {
+      "name": "Juan Sánchez (AKA Riojano)",
+      "teams": [
+        1,
+        6,
+        8,
+        19,
+        21,
+        26
+      ],
+      "spent": 339,
+      "topScorer": "Harry kane",
+      "dateSubmitted": "2026-06-11T18:52:06.905Z"
+    },
+    {
+      "name": "Pablo",
+      "teams": [
+        2,
+        6,
+        11,
+        13,
+        14,
+        19,
+        33
+      ],
+      "spent": 326,
+      "topScorer": "Mbappe",
+      "dateSubmitted": "2026-06-11T18:52:39.278Z"
+    },
+    {
+      "name": "Jesús Palacios",
+      "teams": [
+        5,
+        6,
+        13,
+        14,
+        20,
+        33,
+        39
+      ],
+      "spent": 242,
+      "topScorer": "Oyarzabal",
+      "dateSubmitted": "2026-06-11T18:53:04.203Z"
+    },
+    {
+      "name": "Juan Alonso",
+      "teams": [
+        1,
+        7,
+        8,
+        13,
+        18,
+        26,
+        28
+      ],
+      "spent": 348,
+      "topScorer": "Mbappe (superando por poco a Ferran)",
+      "dateSubmitted": "2026-06-11T18:53:44.512Z"
+    },
+    {
+      "name": "Miguel",
+      "teams": [
+        5,
+        6,
+        7,
+        9,
+        13,
+        20,
+        40
+      ],
+      "spent": 340,
+      "topScorer": "Harry Kane",
+      "dateSubmitted": "2026-06-11T18:55:25.832Z"
+    };],
+  
   results: {
     teamAchievements: {}, // teamId -> { wins, draws, firstInGroup, secondInGroup, w32, w16, w8, w4, w3rd, wFinal }
     topScorers: "" // text input of comma separated top scorers
