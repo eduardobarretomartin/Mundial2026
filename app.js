@@ -603,6 +603,44 @@ const appController = {
       this.showToast("Base de datos exportada para descarga.");
     });
 
+    document.getElementById('btn-export-csv').addEventListener('click', () => {
+      const board = getLeaderboard();
+      if (board.length === 0) {
+        this.showToast("No hay datos que exportar.", true);
+        return;
+      }
+      
+      let csv = "\ufeff"; // UTF-8 BOM for Excel
+      const headers = ["Posicion", "Nombre", "Puntos Totales", "Gasto Presupuesto", "Puntos Equipos", "Puntos Goleador", "Goleador Pronosticado", "Equipos Seleccionados"];
+      csv += headers.join(";") + "\n";
+      
+      board.forEach((p, idx) => {
+        const rank = idx + 1;
+        const teamNames = p.teamDetails.map(td => td.name).join(", ");
+        const row = [
+          rank,
+          p.name,
+          p.totalPoints,
+          p.spent,
+          p.totalTeamPoints,
+          p.topScorerPoints,
+          p.topScorer,
+          `"${teamNames}"`
+        ];
+        csv += row.join(";") + "\n";
+      });
+      
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", url);
+      downloadAnchor.setAttribute("download", "clasificacion_porra_mundial_2026.csv");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      this.showToast("Clasificación exportada a CSV.");
+    });
+
     document.getElementById('btn-trigger-file').addEventListener('click', () => {
       document.getElementById('file-import-json').click();
     });
