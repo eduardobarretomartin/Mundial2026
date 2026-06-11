@@ -59,7 +59,8 @@ const TEAMS = [
   { id: 45, name: "Cabo Verde", block: 4, price: 1, code: "cv" },
   { id: 46, name: "Malasia", block: 4, price: 1, code: "my" },
   { id: 47, name: "Jordania", block: 4, price: 1, code: "jo" },
-  { id: 48, name: "Haití", block: 4, price: 1, code: "ht" }
+  { id: 48, name: "Haití", block: 4, price: 1, code: "ht" },
+  { id: 49, name: "RD Congo", block: 4, price: 1, code: "cd" }
 ];
 
 // --- App State ---
@@ -145,12 +146,12 @@ let state = {
         5,
         6,
         7,
-        9,
+        8,
         13,
         20,
-        40
+        49
       ],
-      "spent": 340,
+      "spent": 352,
       "topScorer": "Harry Kane",
       "dateSubmitted": "2026-06-11T18:55:25.832Z"
     }
