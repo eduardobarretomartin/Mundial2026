@@ -274,7 +274,7 @@
       },
       "16": {
         "wins": 0,
-        "draws": 0,
+        "draws": 1,
         "firstInGroup": false,
         "secondInGroup": false,
         "w32": false,
@@ -550,7 +550,7 @@
       },
       "39": {
         "wins": 0,
-        "draws": 0,
+        "draws": 1,
         "firstInGroup": false,
         "secondInGroup": false,
         "w32": false,
