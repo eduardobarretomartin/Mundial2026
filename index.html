@@ -467,11 +467,14 @@
             <hr style="border-color: var(--border-color); margin: 0.5rem 0;">
             
             <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--color-accent);">Acciones de Emergencia</h3>
-            <div class="actions-row">
-              <button class="btn btn-secondary" id="btn-load-mock" style="flex: 1; font-size: 0.85rem;">
+            <div class="actions-row" style="flex-wrap: wrap; gap: 0.5rem;">
+              <button class="btn btn-secondary" id="btn-load-mock" style="flex: 1; min-width: 140px; font-size: 0.85rem;">
                 🧪 Cargar Datos Demo
               </button>
-              <button class="btn btn-danger" id="btn-clear-data" style="flex: 1; font-size: 0.85rem;">
+              <button class="btn btn-secondary" id="btn-restore-code" style="flex: 1; min-width: 140px; font-size: 0.85rem;">
+                🔄 Restaurar de Código
+              </button>
+              <button class="btn btn-danger" id="btn-clear-data" style="flex: 1; min-width: 140px; font-size: 0.85rem;">
                 💥 Borrar Todo
               </button>
             </div>
@@ -488,10 +491,10 @@
             <div class="form-group">
               <label>Exportar Datos de la Porra</label>
               <button class="btn btn-secondary" id="btn-export-json" style="width: 100%;">
-                📤 Descargar Archivo JSON de Porra
+                📤 Descargar Archivo database.json
               </button>
               <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; margin-bottom: 0.75rem;">
-                Guarda un archivo `.json` con todos los participantes, sus elecciones y los resultados cargados.
+                Descarga el archivo <strong>database.json</strong>. Súbelo a tu repositorio de GitHub para que todos tus amigos vean automáticamente tus porras y los resultados actualizados sin tener que hacer nada.
               </p>
               
               <button class="btn btn-secondary" id="btn-export-csv" style="width: 100%;">

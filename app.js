@@ -15,7 +15,7 @@ const TEAMS = [
   // Bloque 2
   { id: 6, name: "Portugal", block: 2, price: 83, code: "pt" },
   { id: 7, name: "Alemania", block: 2, price: 77, code: "de" },
-  { id: 8, name: "Países Bajos", block: 2, price: 50, code: "nl" },
+  { id: 8, name: "Países Bajos", block: 2, price: 48, code: "nl" },
   { id: 9, name: "Noruega", block: 2, price: 38, code: "no" },
   { id: 10, name: "Bélgica", block: 2, price: 29, code: "be" },
   { id: 11, name: "Colombia", block: 2, price: 29, code: "co" },
@@ -24,11 +24,11 @@ const TEAMS = [
 
   // Bloque 3
   { id: 14, name: "EEUU", block: 3, price: 15, code: "us" },
-  { id: 15, name: "Uruguay", block: 3, price: 12, code: "uy" }, // Corrected Entry 15
+  { id: 15, name: "Uruguay", block: 3, price: 15, code: "uy" }, // Corrected Entry 15
   { id: 16, name: "Suiza", block: 3, price: 12, code: "ch" },
   { id: 17, name: "México", block: 3, price: 12, code: "mx" },
   { id: 18, name: "Croacia", block: 3, price: 12, code: "hr" },
-  { id: 19, name: "Turquía", block: 3, price: 10, code: "tr" },
+  { id: 19, name: "Turquía", block: 3, price: 12, code: "tr" },
   { id: 20, name: "Ecuador", block: 3, price: 10, code: "ec" },
   { id: 21, name: "Senegal", block: 3, price: 10, code: "sn" },
   { id: 22, name: "Suecia", block: 3, price: 8, code: "se" },
@@ -48,7 +48,7 @@ const TEAMS = [
   { id: 34, name: "Túnez", block: 4, price: 2, code: "tn" },
   { id: 35, name: "Australia", block: 4, price: 2, code: "au" },
   { id: 36, name: "Irán", block: 4, price: 2, code: "ir" },
-  { id: 37, name: "Costa", block: 4, price: 1, code: "cr" }, // Costa Rica
+  { id: 37, name: "RD Congo", block: 4, price: 1, code: "cd" }, // Costa Rica -> RD Congo
   { id: 38, name: "Sudáfrica", block: 4, price: 1, code: "za" },
   { id: 39, name: "Catar", block: 4, price: 1, code: "qa" },
   { id: 40, name: "Arabia Saudí", block: 4, price: 1, code: "sa" },
@@ -57,10 +57,9 @@ const TEAMS = [
   { id: 43, name: "Irak", block: 4, price: 1, code: "iq" },
   { id: 44, name: "Uzbekistán", block: 4, price: 1, code: "uz" },
   { id: 45, name: "Cabo Verde", block: 4, price: 1, code: "cv" },
-  { id: 46, name: "Malasia", block: 4, price: 1, code: "my" },
+  { id: 46, name: "Curazao", block: 4, price: 1, code: "cw" },
   { id: 47, name: "Jordania", block: 4, price: 1, code: "jo" },
-  { id: 48, name: "Haití", block: 4, price: 1, code: "ht" },
-  { id: 49, name: "RD Congo", block: 4, price: 1, code: "cd" }
+  { id: 48, name: "Haití", block: 4, price: 1, code: "ht" }
 ];
 
 // --- App State ---
@@ -106,7 +105,7 @@ let state = {
         19,
         33
       ],
-      "spent": 326,
+      "spent": 328, // Turquía is now 12 (was 10)
       "topScorer": "Mbappe",
       "dateSubmitted": "2026-06-11T18:52:39.278Z"
     },
@@ -136,7 +135,7 @@ let state = {
         26,
         28
       ],
-      "spent": 348,
+      "spent": 346, // Países Bajos is now 48 (was 50)
       "topScorer": "Mbappe (superando por poco a Ferran)",
       "dateSubmitted": "2026-06-11T18:53:44.512Z"
     },
@@ -149,9 +148,9 @@ let state = {
         8,
         13,
         20,
-        49
+        37
       ],
-      "spent": 352,
+      "spent": 350, // RD Congo is team 37, Países Bajos is 48
       "topScorer": "Harry Kane",
       "dateSubmitted": "2026-06-11T18:55:25.832Z"
     }
@@ -527,6 +526,31 @@ const appController = {
     this.bindEvents();
     this.renderAll();
     
+    // Intentar sincronizar con database.json oficial en el servidor
+    fetch('database.json')
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error('No se encontró database.json en el servidor');
+      })
+      .then(serverState => {
+        if (serverState && serverState.participants && serverState.results) {
+          state = serverState;
+          initTeamAchievements();
+          saveState(); // Guardar en cache local
+          this.renderAll();
+          // Actualizar inputs del formulario con los valores del servidor
+          document.getElementById('settings-deadline').value = state.deadline;
+          document.getElementById('settings-price').value = state.ticketPrice;
+          document.getElementById('admin-top-scorers-input').value = state.results.topScorers || "";
+          this.showToast("Datos sincronizados con la base de datos oficial.");
+        }
+      })
+      .catch(err => {
+        console.log("Usando base de datos local / sin conexión:", err.message);
+      });
+      
     // Start countdown timer loop
     setInterval(() => this.updateCountdown(), 1000);
     this.updateCountdown();
@@ -668,6 +692,13 @@ const appController = {
       }
     });
 
+    document.getElementById('btn-restore-code').addEventListener('click', () => {
+      if (confirm("🔄 ¿Seguro que quieres restaurar los datos del código? Se eliminarán los cambios locales y se recargará la página con el listado inicial de app.js.")) {
+        localStorage.removeItem('porra_mundial_2026_state');
+        location.reload();
+      }
+    });
+
     document.getElementById('btn-clear-data').addEventListener('click', () => {
       if (confirm("🚨 ¿SEGURO QUE DESEAS BORRAR TODO? Se eliminarán participantes y resultados.")) {
         state.participants = [];
@@ -688,11 +719,11 @@ const appController = {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(exportStateJSON());
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "porra_mundial_2026.json");
+      downloadAnchor.setAttribute("download", "database.json");
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
-      this.showToast("Base de datos exportada para descarga.");
+      this.showToast("Base de datos database.json exportada para descarga.");
     });
 
     document.getElementById('btn-export-csv').addEventListener('click', () => {
