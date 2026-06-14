@@ -130,7 +130,7 @@
       },
       "4": {
         "wins": 0,
-        "draws": 0,
+        "draws": 1,
         "firstInGroup": false,
         "secondInGroup": false,
         "w32": false,
@@ -165,7 +165,7 @@
         "wFinal": false
       },
       "7": {
-        "wins": 0,
+        "wins": 1,
         "draws": 0,
         "firstInGroup": false,
         "secondInGroup": false,
@@ -238,7 +238,7 @@
       },
       "13": {
         "wins": 0,
-        "draws": 0,
+        "draws": 1,
         "firstInGroup": false,
         "secondInGroup": false,
         "w32": false,
@@ -393,7 +393,7 @@
         "wFinal": false
       },
       "26": {
-        "wins": 0,
+        "wins": 1,
         "draws": 0,
         "firstInGroup": false,
         "secondInGroup": false,
@@ -501,7 +501,7 @@
         "wFinal": false
       },
       "35": {
-        "wins": 0,
+        "wins": 1,
         "draws": 0,
         "firstInGroup": false,
         "secondInGroup": false,
