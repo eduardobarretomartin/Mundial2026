@@ -267,9 +267,14 @@
         
         <!-- Team achievements editor (Full Width) -->
         <div class="card" style="display: flex; flex-direction: column; margin-bottom: 1.5rem;">
-          <h2 class="card-title">
+          <h2 class="card-title" style="flex-wrap: wrap; gap: 0.75rem;">
             <span>Hitos de Equipos</span>
-            <span class="accent-text">Edita los logros de cada selección</span>
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+              <button class="btn" id="btn-import-official-results" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: var(--color-secondary); color: #000; box-shadow: var(--shadow-glow-secondary); border-color: var(--color-secondary);">
+                ⚡ Sincronizar desde API Oficial
+              </button>
+              <span class="accent-text" style="border-left: 1px solid var(--border-color); padding-left: 0.75rem; margin-left: 0;">Edita los logros de cada selección</span>
+            </div>
           </h2>
           
           <!-- Team Search Filter -->

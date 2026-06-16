@@ -849,6 +849,13 @@ const appController = {
     document.getElementById('filter-official-played').addEventListener('change', () => {
       this.renderOfficialMatches();
     });
+
+    // Import official results to betting pool
+    document.getElementById('btn-import-official-results').addEventListener('click', () => {
+      if (confirm("⚡ ¿Seguro que quieres actualizar automáticamente todos los aciertos, goles y clasificaciones de los equipos en la porra usando los datos oficiales de la API? Se sobrescribirán los hitos actuales de los equipos.")) {
+        this.importOfficialResultsToPorra();
+      }
+    });
   },
 
   renderAll() {
@@ -1583,7 +1590,19 @@ const appController = {
             <tbody>
       `;
       
-      const teams = [...g.teams];
+      const teams = [...g.teams].sort((a, b) => {
+        const ptsA = parseInt(a.pts) || 0;
+        const ptsB = parseInt(b.pts) || 0;
+        if (ptsB !== ptsA) return ptsB - ptsA;
+        
+        const gdA = parseInt(a.gd) || 0;
+        const gdB = parseInt(b.gd) || 0;
+        if (gdB !== gdA) return gdB - gdA;
+        
+        const gfA = parseInt(a.gf) || 0;
+        const gfB = parseInt(b.gf) || 0;
+        return gfB - gfA;
+      });
       
       teams.forEach((t, index) => {
         const apiTeam = this.apiTeamsMap[t.team_id];
@@ -1806,6 +1825,163 @@ const appController = {
       
       grid.appendChild(card);
     });
+  },
+
+  getLocalTeamIdFromApiId(apiTeamId) {
+    if (!this.apiTeamsMap) return null;
+    const apiTeam = this.apiTeamsMap[apiTeamId];
+    if (!apiTeam) return null;
+    
+    let iso2 = (apiTeam.iso2 || "").toLowerCase();
+    if (iso2 === 'eng') iso2 = 'gb-eng';
+    if (iso2 === 'sco') iso2 = 'gb-sct';
+    
+    const localTeam = TEAMS.find(t => t.code === iso2);
+    return localTeam ? localTeam.id : null;
+  },
+
+  async importOfficialResultsToPorra() {
+    const btn = document.getElementById('btn-import-official-results');
+    if (!btn) return;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span>⏳</span> Sincronizando...`;
+    
+    try {
+      // Fetch teams, groups, and games in parallel (same as tab fetch)
+      const promises = [
+        fetch('https://worldcup26.ir/get/teams').then(r => {
+          if (!r.ok) throw new Error('Error al obtener equipos de la API');
+          return r.json();
+        }),
+        fetch('https://worldcup26.ir/get/groups').then(r => {
+          if (!r.ok) throw new Error('Error al obtener clasificación de grupos');
+          return r.json();
+        }),
+        fetch('https://worldcup26.ir/get/games').then(r => {
+          if (!r.ok) throw new Error('Error al obtener calendario de partidos');
+          return r.json();
+        })
+      ];
+      
+      const [teamsData, groupsData, gamesData] = await Promise.all(promises);
+      
+      if (teamsData && Array.isArray(teamsData.teams)) {
+        this.apiTeamsMap = {};
+        teamsData.teams.forEach(t => {
+          this.apiTeamsMap[t.id] = t;
+        });
+      }
+      
+      const apiGroups = (groupsData && Array.isArray(groupsData.groups)) ? groupsData.groups : [];
+      const apiGames = (gamesData && Array.isArray(gamesData.games)) ? gamesData.games : [];
+      
+      if (apiGroups.length === 0 || apiGames.length === 0) {
+        throw new Error("La API oficial no devolvió datos válidos.");
+      }
+      
+      // Clear current local achievements to recalculate cleanly
+      TEAMS.forEach(team => {
+        state.results.teamAchievements[team.id] = {
+          wins: 0,
+          draws: 0,
+          firstInGroup: false,
+          secondInGroup: false,
+          w32: false,
+          w16: false,
+          w8: false,
+          w4: false,
+          w3rd: false,
+          wFinal: false
+        };
+      });
+      
+      // Process Group Stage Standings
+      apiGroups.forEach(g => {
+        // Sort teams using official criteria (Points, GD, GF)
+        const sortedTeams = [...g.teams].sort((a, b) => {
+          const ptsA = parseInt(a.pts) || 0;
+          const ptsB = parseInt(b.pts) || 0;
+          if (ptsB !== ptsA) return ptsB - ptsA;
+          
+          const gdA = parseInt(a.gd) || 0;
+          const gdB = parseInt(b.gd) || 0;
+          if (gdB !== gdA) return gdB - gdA;
+          
+          const gfA = parseInt(a.gf) || 0;
+          const gfB = parseInt(b.gf) || 0;
+          return gfB - gfA;
+        });
+        
+        sortedTeams.forEach((t, index) => {
+          const localId = this.getLocalTeamIdFromApiId(t.team_id);
+          if (localId) {
+            const ach = state.results.teamAchievements[localId];
+            ach.wins = parseInt(t.w) || 0;
+            ach.draws = parseInt(t.d) || 0;
+            
+            // Check if group is finished (every team has played 3 matches)
+            const totalGroupMatchesPlayed = sortedTeams.reduce((sum, tm) => sum + (parseInt(tm.mp) || 0), 0);
+            if (totalGroupMatchesPlayed >= 12) {
+              if (index === 0) ach.firstInGroup = true;
+              if (index === 1) ach.secondInGroup = true;
+            }
+          }
+        });
+      });
+      
+      // Process Knockout Stage Matches
+      apiGames.forEach(game => {
+        const isFinished = game.finished === 'TRUE' || game.time_elapsed === 'finished';
+        if (!isFinished) return;
+        
+        const homeScore = parseFloat(game.home_score);
+        const awayScore = parseFloat(game.away_score);
+        if (isNaN(homeScore) || isNaN(awayScore)) return;
+        
+        let winnerApiId = null;
+        if (homeScore > awayScore) {
+          winnerApiId = game.home_team_id;
+        } else if (awayScore > homeScore) {
+          winnerApiId = game.away_team_id;
+        } else {
+          // Check scorers for shootout winner
+          const homeScorers = (game.home_scorers || "").toLowerCase();
+          const awayScorers = (game.away_scorers || "").toLowerCase();
+          if (homeScorers.includes("penalties") || homeScorers.includes("win") || homeScorers.includes("vence")) {
+            winnerApiId = game.home_team_id;
+          } else if (awayScorers.includes("penalties") || awayScorers.includes("win") || awayScorers.includes("vence")) {
+            winnerApiId = game.away_team_id;
+          }
+        }
+        
+        if (winnerApiId && winnerApiId !== "0") {
+          const localWinnerId = this.getLocalTeamIdFromApiId(winnerApiId);
+          if (localWinnerId) {
+            const ach = state.results.teamAchievements[localWinnerId];
+            
+            const type = (game.type || "").toLowerCase();
+            if (type === 'r32') ach.w32 = true;
+            else if (type === 'r16') ach.w16 = true;
+            else if (type === 'qf') ach.w8 = true;
+            else if (type === 'sf') ach.w4 = true;
+            else if (type === 'third') ach.w3rd = true;
+            else if (type === 'final') ach.wFinal = true;
+          }
+        }
+      });
+      
+      saveState();
+      this.renderAll();
+      this.showToast("¡Resultados sincronizados y porra actualizada desde la API oficial!");
+      
+    } catch (err) {
+      console.error(err);
+      this.showToast(`Error al sincronizar resultados: ${err.message || err}`, true);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
   }
 };
 
