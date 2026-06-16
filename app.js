@@ -515,6 +515,10 @@ function importStateJSON(jsonText) {
 // --- UI CONTROLLER & RENDER ENGINE ---
 const appController = {
   selectedDraftTeams: [],
+  officialDataLoaded: false,
+  apiTeamsMap: null,
+  cachedGames: null,
+  cachedGroups: null,
 
   init() {
     loadState();
@@ -566,6 +570,10 @@ const appController = {
         btn.classList.add('active');
         const targetTab = btn.getAttribute('data-tab');
         document.getElementById(targetTab).classList.add('active');
+        
+        if (targetTab === 'tab-official-wc') {
+          this.fetchOfficialData();
+        }
       });
     });
 
@@ -800,6 +808,46 @@ const appController = {
         }
       };
       reader.readAsText(file);
+    });
+
+    // Sub-tab switching inside Official WC
+    document.querySelectorAll('.official-tab-subnav .sub-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.official-tab-subnav .sub-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#tab-official-wc .subtab-content').forEach(c => c.style.display = 'none');
+        
+        btn.classList.add('active');
+        const targetSubtab = btn.getAttribute('data-subtab');
+        document.getElementById(targetSubtab).style.display = 'block';
+        
+        if (targetSubtab === 'subtab-official-groups' && this.cachedGroups) {
+          this.renderOfficialGroups();
+        } else if (targetSubtab === 'subtab-official-matches' && this.cachedGames) {
+          this.renderOfficialMatches();
+        }
+      });
+    });
+
+    // Refresh and retry buttons
+    document.getElementById('btn-refresh-official').addEventListener('click', () => {
+      this.fetchOfficialData(true);
+    });
+
+    document.getElementById('btn-retry-official').addEventListener('click', () => {
+      this.fetchOfficialData(true);
+    });
+
+    // Match filters
+    document.getElementById('filter-official-stage').addEventListener('change', () => {
+      this.renderOfficialMatches();
+    });
+
+    document.getElementById('filter-official-search').addEventListener('input', () => {
+      this.renderOfficialMatches();
+    });
+
+    document.getElementById('filter-official-played').addEventListener('change', () => {
+      this.renderOfficialMatches();
     });
   },
 
@@ -1374,6 +1422,390 @@ const appController = {
   loadMockData() {
     loadMockData(); // Delegate to global loadMockData function
     this.renderAll();
+  },
+
+  async fetchOfficialData(force = false) {
+    if (this.officialDataLoaded && !force) {
+      return;
+    }
+    
+    const loadingElem = document.getElementById('official-loading');
+    const errorElem = document.getElementById('official-error');
+    const groupsSubtab = document.getElementById('subtab-official-groups');
+    const matchesSubtab = document.getElementById('subtab-official-matches');
+    
+    loadingElem.style.display = 'block';
+    errorElem.style.display = 'none';
+    groupsSubtab.style.display = 'none';
+    matchesSubtab.style.display = 'none';
+    
+    try {
+      // Fetch teams if needed, and groups, and games in parallel
+      const promises = [];
+      const fetchTeams = (!this.apiTeamsMap || force);
+      
+      if (fetchTeams) {
+        promises.push(fetch('https://worldcup26.ir/get/teams').then(r => {
+          if (!r.ok) throw new Error('Error al obtener equipos de la API');
+          return r.json();
+        }));
+      } else {
+        promises.push(Promise.resolve(null));
+      }
+      
+      promises.push(fetch('https://worldcup26.ir/get/groups').then(r => {
+        if (!r.ok) throw new Error('Error al obtener clasificación de grupos');
+        return r.json();
+      }));
+      
+      promises.push(fetch('https://worldcup26.ir/get/games').then(r => {
+        if (!r.ok) throw new Error('Error al obtener calendario de partidos');
+        return r.json();
+      }));
+      
+      const [teamsData, groupsData, gamesData] = await Promise.all(promises);
+      
+      if (fetchTeams && teamsData && Array.isArray(teamsData.teams)) {
+        this.apiTeamsMap = {};
+        teamsData.teams.forEach(t => {
+          this.apiTeamsMap[t.id] = t;
+        });
+      }
+      
+      this.cachedGroups = (groupsData && Array.isArray(groupsData.groups)) ? groupsData.groups : [];
+      this.cachedGames = (gamesData && Array.isArray(gamesData.games)) ? gamesData.games : [];
+      
+      this.officialDataLoaded = true;
+      
+      // Update update time
+      const timeStr = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      document.getElementById('official-update-time').textContent = `Actualizado: ${timeStr} h`;
+      
+      // Render
+      this.renderOfficialGroups();
+      this.renderOfficialMatches();
+      
+      // Hide loading, show active subtab content
+      loadingElem.style.display = 'none';
+      const activeSubtabBtn = document.querySelector('.official-tab-subnav .sub-tab-btn.active');
+      const activeSubtabId = activeSubtabBtn.getAttribute('data-subtab');
+      document.getElementById(activeSubtabId).style.display = 'block';
+      
+    } catch (err) {
+      console.error(err);
+      loadingElem.style.display = 'none';
+      errorElem.style.display = 'block';
+      document.getElementById('official-error-msg').textContent = `Detalle: ${err.message || err}`;
+    }
+  },
+
+  getSpanishTeamName(apiTeam) {
+    if (!apiTeam) return "Desconocido";
+    let iso2 = (apiTeam.iso2 || "").toLowerCase();
+    
+    if (iso2 === 'eng') iso2 = 'gb-eng';
+    if (iso2 === 'sco') iso2 = 'gb-sct';
+    
+    const localTeam = TEAMS.find(t => t.code === iso2);
+    if (localTeam) {
+      return localTeam.name;
+    }
+    
+    const translations = {
+      "United States": "EEUU",
+      "Bosnia and Herzegovina": "Bosnia y Hzgb.",
+      "Ivory Coast": "Costa de Marfil",
+      "Democratic Republic of the Congo": "RD Congo",
+      "Saudi Arabia": "Arabia Saudí",
+      "South Korea": "Corea del Sur",
+      "Czech Republic": "Chequia",
+      "Curaçao": "Curazao"
+    };
+    
+    return translations[apiTeam.name_en] || apiTeam.name_en || "Desconocido";
+  },
+
+  translateLabel(label) {
+    if (!label) return "";
+    return label
+      .replace(/Winner Group (\w)/gi, '1º Grupo $1')
+      .replace(/Runner-up Group (\w)/gi, '2º Grupo $1')
+      .replace(/Winner Match (\d+)/gi, 'Ganador P$1')
+      .replace(/Loser Match (\d+)/gi, 'Perdedor P$1')
+      .replace(/3rd Group (\w)\/(\w)\/(\w)\/(\w)\/(\w)/gi, '3º Gp $1/$2/$3/$4/$5')
+      .replace(/Group Stage/gi, 'Fase de Grupos')
+      .replace(/Round of 32/gi, 'Dieciseisavos')
+      .replace(/Round of 16/gi, 'Octavos')
+      .replace(/Quarterfinals/gi, 'Cuartos')
+      .replace(/Semifinals/gi, 'Semifinal')
+      .replace(/Third Place/gi, 'Tercer Puesto')
+      .replace(/Final/gi, 'Final');
+  },
+
+  renderOfficialGroups() {
+    const grid = document.getElementById('official-groups-grid');
+    if (!grid) return;
+    grid.innerHTML = "";
+    
+    if (!this.cachedGroups || this.cachedGroups.length === 0) {
+      grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No hay información de grupos disponible.</div>`;
+      return;
+    }
+    
+    const sortedGroups = [...this.cachedGroups].sort((a, b) => a.name.localeCompare(b.name));
+    
+    sortedGroups.forEach(g => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.display = 'flex';
+      card.style.flexDirection = 'column';
+      
+      const groupName = g.name.length === 1 ? `Grupo ${g.name}` : g.name;
+      
+      let html = `
+        <h3 class="card-title" style="margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; font-size: 1.05rem;">
+          <span>${groupName}</span>
+        </h3>
+        <div style="overflow-x: auto;">
+          <table class="group-table">
+            <thead>
+              <tr>
+                <th style="width: 25px;">Pos</th>
+                <th class="team-col">Equipo</th>
+                <th style="width: 25px;">PJ</th>
+                <th style="width: 20px; color: var(--color-primary);">G</th>
+                <th style="width: 20px;">E</th>
+                <th style="width: 20px; color: var(--color-accent);">P</th>
+                <th style="width: 30px;">DG</th>
+                <th style="width: 30px; font-weight: bold; color: var(--color-secondary);">Pts</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      const teams = [...g.teams];
+      
+      teams.forEach((t, index) => {
+        const apiTeam = this.apiTeamsMap[t.team_id];
+        const teamName = apiTeam ? this.getSpanishTeamName(apiTeam) : `Equipo ${t.team_id}`;
+        const flagUrl = apiTeam ? apiTeam.flag : "data/placeholder-flag.png";
+        const posClass = (index === 0) ? 'pos-1' : (index === 1) ? 'pos-2' : '';
+        
+        html += `
+          <tr class="${posClass}">
+            <td><span class="group-pos-val">${index + 1}</span></td>
+            <td class="team-col" style="font-weight: 500; white-space: nowrap;">
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <img src="${flagUrl}" alt="${teamName}" style="width: 18px; height: 12px; border-radius: 1px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                <span>${teamName}</span>
+              </div>
+            </td>
+            <td>${t.mp}</td>
+            <td style="font-weight: 500;">${t.w}</td>
+            <td>${t.d}</td>
+            <td style="font-weight: 500;">${t.l}</td>
+            <td style="color: ${parseInt(t.gd) > 0 ? 'var(--color-primary)' : parseInt(t.gd) < 0 ? 'var(--color-accent)' : 'inherit'}; font-weight: 500;">
+              ${parseInt(t.gd) > 0 ? '+' : ''}${t.gd}
+            </td>
+            <td style="font-weight: 700; color: var(--text-cyan);">${t.pts}</td>
+          </tr>
+        `;
+      });
+      
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+      
+      card.innerHTML = html;
+      grid.appendChild(card);
+    });
+  },
+
+  renderOfficialMatches() {
+    const grid = document.getElementById('official-matches-grid');
+    if (!grid) return;
+    grid.innerHTML = "";
+    
+    if (!this.cachedGames || this.cachedGames.length === 0) {
+      grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">No hay partidos programados o cargados.</div>`;
+      return;
+    }
+    
+    const stageFilter = document.getElementById('filter-official-stage').value;
+    const searchFilter = document.getElementById('filter-official-search').value.trim().toLowerCase();
+    const playedFilter = document.getElementById('filter-official-played').checked;
+    
+    let filteredGames = this.cachedGames.filter(g => {
+      if (stageFilter !== 'all') {
+        if (stageFilter === 'group' && g.type !== 'group') return false;
+        if (stageFilter === 'm1' && (g.type !== 'group' || g.matchday !== '1')) return false;
+        if (stageFilter === 'm2' && (g.type !== 'group' || g.matchday !== '2')) return false;
+        if (stageFilter === 'm3' && (g.type !== 'group' || g.matchday !== '3')) return false;
+        if (stageFilter === 'r32' && g.type !== 'r32') return false;
+        if (stageFilter === 'r16' && g.type !== 'r16') return false;
+        if (stageFilter === 'qf' && g.type !== 'qf') return false;
+        if (stageFilter === 'sf' && g.type !== 'sf') return false;
+        if (stageFilter === 'third' && g.type !== 'third') return false;
+        if (stageFilter === 'final' && g.type !== 'final') return false;
+      }
+      
+      const homeTeam = this.apiTeamsMap[g.home_team_id];
+      const awayTeam = this.apiTeamsMap[g.away_team_id];
+      const homeNameSp = homeTeam ? this.getSpanishTeamName(homeTeam).toLowerCase() : (g.home_team_label || "").toLowerCase();
+      const awayNameSp = awayTeam ? this.getSpanishTeamName(awayTeam).toLowerCase() : (g.away_team_label || "").toLowerCase();
+      const homeNameEn = (g.home_team_name_en || "").toLowerCase();
+      const awayNameEn = (g.away_team_name_en || "").toLowerCase();
+      
+      if (searchFilter !== "") {
+        const matchSearch = homeNameSp.includes(searchFilter) || 
+                            awayNameSp.includes(searchFilter) || 
+                            homeNameEn.includes(searchFilter) || 
+                            awayNameEn.includes(searchFilter);
+        if (!matchSearch) return false;
+      }
+      
+      if (playedFilter) {
+        const finishedOrLive = g.finished === 'TRUE' || g.time_elapsed === 'finished' || g.time_elapsed === 'live';
+        if (!finishedOrLive) return false;
+      }
+      
+      return true;
+    });
+    
+    filteredGames.sort((a, b) => {
+      const dateA = new Date(a.local_date || 0);
+      const dateB = new Date(b.local_date || 0);
+      return dateA - dateB;
+    });
+    
+    if (filteredGames.length === 0) {
+      grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">No se encontraron partidos que coincidan con los filtros seleccionados.</div>`;
+      return;
+    }
+    
+    const parseScorersText = (scorersStr) => {
+      if (!scorersStr || scorersStr === "null") return [];
+      try {
+        let cleaned = scorersStr.trim();
+        if (cleaned.startsWith('{') && cleaned.endsWith('}')) {
+          cleaned = cleaned.substring(1, cleaned.length - 1);
+        }
+        cleaned = cleaned.replace(/\\"/g, '"');
+        const matches = [...cleaned.matchAll(/"([^"]+)"/g)].map(m => m[1]);
+        if (matches.length > 0) return matches;
+        return cleaned.split(',').map(s => s.trim().replace(/^['"]|['"]$/g, '')).filter(s => s !== "");
+      } catch (e) {
+        return [];
+      }
+    };
+    
+    filteredGames.forEach(g => {
+      const card = document.createElement('div');
+      const isLive = g.time_elapsed === 'live';
+      const isFinished = g.finished === 'TRUE' || g.time_elapsed === 'finished';
+      
+      card.className = `match-card ${isFinished ? 'finished' : ''} ${isLive ? 'live' : ''}`;
+      
+      let statusBadgeHtml = "";
+      if (isLive) {
+        statusBadgeHtml = `<span class="match-status-badge status-live">En vivo</span>`;
+      } else if (isFinished) {
+        statusBadgeHtml = `<span class="match-status-badge status-finished">Final</span>`;
+      } else {
+        statusBadgeHtml = `<span class="match-status-badge status-scheduled">Programado</span>`;
+      }
+      
+      let stageText = "";
+      if (g.type === 'group') {
+        stageText = `Grupo ${g.group || ""} - Jornada ${g.matchday || ""}`;
+      } else {
+        stageText = this.translateLabel(g.group || g.type);
+      }
+      
+      let dateFormatted = g.local_date || "";
+      try {
+        const dateObj = new Date(g.local_date);
+        if (!isNaN(dateObj.getTime())) {
+          dateFormatted = dateObj.toLocaleDateString('es-ES', { 
+            day: '2-digit', 
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+          }) + ' h';
+        }
+      } catch (e) {}
+      
+      const homeTeam = this.apiTeamsMap[g.home_team_id];
+      const awayTeam = this.apiTeamsMap[g.away_team_id];
+      
+      const homeName = homeTeam ? this.getSpanishTeamName(homeTeam) : this.translateLabel(g.home_team_label || g.home_team_name_en || "Por definir");
+      const awayName = awayTeam ? this.getSpanishTeamName(awayTeam) : this.translateLabel(g.away_team_label || g.away_team_name_en || "Por definir");
+      
+      const homeFlag = homeTeam ? homeTeam.flag : "data/2026_FIFA_World_Cup_emblem.svg.png";
+      const awayFlag = awayTeam ? awayTeam.flag : "data/2026_FIFA_World_Cup_emblem.svg.png";
+      
+      const showScore = isLive || isFinished;
+      const scoreHtml = showScore 
+        ? `<span class="match-score-display">${g.home_score} - ${g.away_score}</span>`
+        : `<span class="match-score-display" style="font-size: 1.15rem; color: var(--text-muted); font-weight: 500;">vs</span>`;
+      
+      const homeScorersList = parseScorersText(g.home_scorers);
+      const awayScorersList = parseScorersText(g.away_scorers);
+      const hasScorers = homeScorersList.length > 0 || awayScorersList.length > 0;
+      
+      let footerHtml = "";
+      if (hasScorers) {
+        footerHtml = `<div class="match-card-footer">`;
+        if (homeScorersList.length > 0) {
+          footerHtml += `
+            <div class="scorers-row">
+              <span class="icon">⚽</span>
+              <span class="scorers-text"><strong>${homeName}:</strong> ${homeScorersList.join(', ')}</span>
+            </div>
+          `;
+        }
+        if (awayScorersList.length > 0) {
+          footerHtml += `
+            <div class="scorers-row">
+              <span class="icon">⚽</span>
+              <span class="scorers-text"><strong>${awayName}:</strong> ${awayScorersList.join(', ')}</span>
+            </div>
+          `;
+        }
+        footerHtml += `</div>`;
+      }
+      
+      card.innerHTML = `
+        <div class="match-card-header">
+          <span>${stageText}</span>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 0.7rem;">${dateFormatted}</span>
+            ${statusBadgeHtml}
+          </div>
+        </div>
+        <div class="match-card-body">
+          <div class="match-team">
+            <img src="${homeFlag}" alt="${homeName}" style="${!homeTeam ? 'height: 20px; opacity: 0.5; filter: grayscale(1);' : ''}">
+            <span class="match-team-name" title="${homeName}">${homeName}</span>
+          </div>
+          
+          <div class="match-score-area">
+            ${scoreHtml}
+            ${!showScore ? `<div class="match-time-display" style="margin-top: 0.25rem;">${dateFormatted.split(' ')[2] || ""}</div>` : ""}
+          </div>
+          
+          <div class="match-team">
+            <img src="${awayFlag}" alt="${awayName}" style="${!awayTeam ? 'height: 20px; opacity: 0.5; filter: grayscale(1);' : ''}">
+            <span class="match-team-name" title="${awayName}">${awayName}</span>
+          </div>
+        </div>
+        ${footerHtml}
+      `;
+      
+      grid.appendChild(card);
+    });
   }
 };
 

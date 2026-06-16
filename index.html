@@ -51,6 +51,9 @@
       <button class="tab-btn" data-tab="tab-results">
         <span>⚽</span> Resultados WC
       </button>
+      <button class="tab-btn" data-tab="tab-official-wc">
+        <span>📊</span> Oficial WC
+      </button>
       <button class="tab-btn" data-tab="tab-settings">
         <span>⚙️</span> Ajustes
       </button>
@@ -436,7 +439,106 @@
         </div>
       </section>
 
-      <!-- VIEW 5: SETTINGS / ADJUSTMENTS -->
+      <!-- VIEW 5: OFFICIAL WC LIVE DATA (API) -->
+      <section id="tab-official-wc" class="tab-content">
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h2 style="font-family: var(--font-heading); font-weight: 750; font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                <span>📊</span> Clasificación y Partidos Oficiales
+              </h2>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.25rem 0 0 0;">
+                Datos en tiempo real obtenidos directamente del Mundial 2026.
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span id="official-update-time" style="font-size: 0.75rem; color: var(--text-muted);">Sin actualizar</span>
+              <button class="btn btn-secondary" id="btn-refresh-official" style="padding: 0.5rem 1rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.35rem;">
+                🔄 Refrescar
+              </button>
+            </div>
+          </div>
+
+          <!-- Sub-tabs navigation for groups/matches -->
+          <div class="official-tab-subnav" style="margin-top: 1.25rem;">
+            <button class="sub-tab-btn active" data-subtab="subtab-official-groups">
+              <span>🏆</span> Clasificación Grupos
+            </button>
+            <button class="sub-tab-btn" data-subtab="subtab-official-matches">
+              <span>⚽</span> Partidos y Resultados
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading / Error states -->
+        <div id="official-loading" class="card" style="display: none; text-align: center; padding: 3rem 1.5rem;">
+          <div class="spinner" style="margin: 0 auto 1.5rem auto;"></div>
+          <h3>Cargando información del Mundial...</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Obteniendo datos de clasificación y partidos oficiales.</p>
+        </div>
+
+        <div id="official-error" class="card" style="display: none; text-align: center; padding: 3rem 1.5rem; border-color: var(--color-accent);">
+          <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">⚠️</span>
+          <h3 style="color: var(--color-accent);">Error al cargar los datos oficiales</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem; max-width: 450px; margin-left: auto; margin-right: auto;" id="official-error-msg">
+            No se ha podido conectar con el servicio de resultados del Mundial 2026. Por favor, comprueba tu conexión a internet o inténtalo de nuevo más tarde.
+          </p>
+          <button class="btn btn-secondary" id="btn-retry-official" style="margin-top: 1.5rem;">
+            🔄 Intentar de nuevo
+          </button>
+        </div>
+
+        <!-- SUBTAB 1: OFFICIAL GROUPS -->
+        <div id="subtab-official-groups" class="subtab-content active">
+          <div class="groups-grid" id="official-groups-grid">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- SUBTAB 2: OFFICIAL MATCHES -->
+        <div id="subtab-official-matches" class="subtab-content" style="display: none;">
+          <!-- Filter Bar Card -->
+          <div class="card" style="margin-bottom: 1.5rem;">
+            <div class="filters-bar" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+              
+              <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                <label for="filter-official-stage" style="margin-bottom: 0.35rem; font-size: 0.8rem;">Fase / Jornada</label>
+                <select id="filter-official-stage" class="input-control" style="padding: 0.5rem;">
+                  <option value="all">Todas las fases</option>
+                  <option value="group">Fase de Grupos (Todo)</option>
+                  <option value="m1">Grupos - Jornada 1</option>
+                  <option value="m2">Grupos - Jornada 2</option>
+                  <option value="m3">Grupos - Jornada 3</option>
+                  <option value="r32">Dieciseisavos (1/16)</option>
+                  <option value="r16">Octavos (1/8)</option>
+                  <option value="qf">Cuartos (1/4)</option>
+                  <option value="sf">Semifinales</option>
+                  <option value="third">3er Puesto</option>
+                  <option value="final">Final</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                <label for="filter-official-search" style="margin-bottom: 0.35rem; font-size: 0.8rem;">Buscar País</label>
+                <input type="text" id="filter-official-search" class="input-control" placeholder="Ej. España, Brasil..." style="padding: 0.5rem;">
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1.25rem;">
+                <input type="checkbox" id="filter-official-played" style="width: 1.1rem; height: 1.1rem; cursor: pointer;">
+                <label for="filter-official-played" style="font-size: 0.85rem; cursor: pointer; user-select: none;">Solo partidos jugados/en vivo</label>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Matches Grid -->
+          <div class="matches-grid" id="official-matches-grid">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 6: SETTINGS / ADJUSTMENTS -->
       <section id="tab-settings" class="tab-content">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
           
