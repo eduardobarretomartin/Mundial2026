@@ -1555,10 +1555,11 @@ const appController = {
     grid.innerHTML = "";
     
     if (!this.cachedGroups || this.cachedGroups.length === 0) {
-      grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No hay información de grupos disponible.</div>`;
+      grid.innerHTML = `<div class="card" style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">No hay información de grupos disponible.</div>`;
       return;
     }
     
+    const standingsMap = this.calculateStandingsFromGames();
     const sortedGroups = [...this.cachedGroups].sort((a, b) => a.name.localeCompare(b.name));
     
     sortedGroups.forEach(g => {
@@ -1590,7 +1591,23 @@ const appController = {
             <tbody>
       `;
       
-      const teams = [...g.teams].sort((a, b) => {
+      const teams = g.teams.map(t => {
+        const calc = standingsMap[t.team_id];
+        if (calc) {
+          return {
+            ...t,
+            mp: calc.mp,
+            w: calc.w,
+            d: calc.d,
+            l: calc.l,
+            gf: calc.gf,
+            ga: calc.ga,
+            gd: calc.gd,
+            pts: calc.pts
+          };
+        }
+        return t;
+      }).sort((a, b) => {
         const ptsA = parseInt(a.pts) || 0;
         const ptsB = parseInt(b.pts) || 0;
         if (ptsB !== ptsA) return ptsB - ptsA;
@@ -1897,9 +1914,23 @@ const appController = {
       });
       
       // Process Group Stage Standings
+      const standingsMap = this.calculateStandingsFromGames();
       apiGroups.forEach(g => {
         // Sort teams using official criteria (Points, GD, GF)
-        const sortedTeams = [...g.teams].sort((a, b) => {
+        const sortedTeams = g.teams.map(t => {
+          const calc = standingsMap[t.team_id] || t;
+          return {
+            team_id: t.team_id,
+            mp: calc.mp,
+            w: calc.w,
+            d: calc.d,
+            l: calc.l,
+            gf: calc.gf,
+            ga: calc.ga,
+            gd: calc.gd,
+            pts: calc.pts
+          };
+        }).sort((a, b) => {
           const ptsA = parseInt(a.pts) || 0;
           const ptsB = parseInt(b.pts) || 0;
           if (ptsB !== ptsA) return ptsB - ptsA;
@@ -1982,6 +2013,78 @@ const appController = {
       btn.disabled = false;
       btn.innerHTML = originalText;
     }
+  },
+
+  calculateStandingsFromGames() {
+    const standingsMap = {};
+    if (this.apiTeamsMap) {
+      Object.keys(this.apiTeamsMap).forEach(teamId => {
+        standingsMap[teamId] = {
+          team_id: teamId,
+          mp: 0,
+          w: 0,
+          d: 0,
+          l: 0,
+          gf: 0,
+          ga: 0,
+          gd: 0,
+          pts: 0
+        };
+      });
+    }
+    
+    if (this.cachedGames) {
+      this.cachedGames.forEach(g => {
+        if (g.type !== 'group') return;
+        
+        const isFinished = g.finished === 'TRUE' || g.time_elapsed === 'finished';
+        if (!isFinished) return;
+        
+        const homeId = g.home_team_id;
+        const awayId = g.away_team_id;
+        
+        const homeScore = parseInt(g.home_score);
+        const awayScore = parseInt(g.away_score);
+        if (isNaN(homeScore) || isNaN(awayScore)) return;
+        
+        if (!standingsMap[homeId]) {
+          standingsMap[homeId] = { team_id: homeId, mp: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
+        }
+        if (!standingsMap[awayId]) {
+          standingsMap[awayId] = { team_id: awayId, mp: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
+        }
+        
+        const home = standingsMap[homeId];
+        const away = standingsMap[awayId];
+        
+        home.mp += 1;
+        away.mp += 1;
+        home.gf += homeScore;
+        home.ga += awayScore;
+        away.gf += awayScore;
+        away.ga += homeScore;
+        
+        if (homeScore > awayScore) {
+          home.w += 1;
+          home.pts += 3;
+          away.l += 1;
+        } else if (awayScore > homeScore) {
+          away.w += 1;
+          away.pts += 3;
+          home.l += 1;
+        } else {
+          home.d += 1;
+          home.pts += 1;
+          away.d += 1;
+          away.pts += 1;
+        }
+        
+        home.gd = home.gf - home.ga;
+        away.gd = away.gf - away.ga;
+      });
+    }
+    
+    return standingsMap;
   }
 };
 
