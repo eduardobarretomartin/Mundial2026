@@ -117,7 +117,7 @@
         "wFinal": false
       },
       "3": {
-        "wins": 0,
+        "wins": 1,
         "draws": 0,
         "firstInGroup": false,
         "secondInGroup": false,
@@ -213,7 +213,7 @@
         "wFinal": false
       },
       "11": {
-        "wins": 0,
+        "wins": 1,
         "draws": 0,
         "firstInGroup": false,
         "secondInGroup": false,
@@ -237,7 +237,7 @@
         "wFinal": false
       },
       "13": {
-        "wins": 0,
+        "wins": 1,
         "draws": 1,
         "firstInGroup": false,
         "secondInGroup": false,
@@ -249,7 +249,7 @@
         "wFinal": false
       },
       "14": {
-        "wins": 1,
+        "wins": 2,
         "draws": 0,
         "firstInGroup": false,
         "secondInGroup": false,
@@ -273,7 +273,7 @@
         "wFinal": false
       },
       "16": {
-        "wins": 0,
+        "wins": 1,
         "draws": 1,
         "firstInGroup": false,
         "secondInGroup": false,
@@ -285,7 +285,7 @@
         "wFinal": false
       },
       "17": {
-        "wins": 1,
+        "wins": 2,
         "draws": 0,
         "firstInGroup": false,
         "secondInGroup": false,
@@ -357,7 +357,7 @@
         "wFinal": false
       },
       "23": {
-        "wins": 0,
+        "wins": 1,
         "draws": 1,
         "firstInGroup": false,
         "secondInGroup": false,
@@ -442,7 +442,7 @@
       },
       "30": {
         "wins": 0,
-        "draws": 0,
+        "draws": 1,
         "firstInGroup": false,
         "secondInGroup": false,
         "w32": false,
@@ -453,7 +453,7 @@
         "wFinal": false
       },
       "31": {
-        "wins": 0,
+        "wins": 1,
         "draws": 0,
         "firstInGroup": false,
         "secondInGroup": false,
@@ -538,7 +538,7 @@
       },
       "38": {
         "wins": 0,
-        "draws": 0,
+        "draws": 1,
         "firstInGroup": false,
         "secondInGroup": false,
         "w32": false,
