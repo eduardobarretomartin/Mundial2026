@@ -99,7 +99,7 @@
         "secondInGroup": false,
         "w32": true,
         "w16": true,
-        "w8": false,
+        "w8": true,
         "w4": false,
         "w3rd": false,
         "wFinal": false
@@ -111,7 +111,7 @@
         "secondInGroup": false,
         "w32": true,
         "w16": true,
-        "w8": false,
+        "w8": true,
         "w4": false,
         "w3rd": false,
         "wFinal": false
@@ -123,7 +123,7 @@
         "secondInGroup": false,
         "w32": true,
         "w16": true,
-        "w8": false,
+        "w8": true,
         "w4": false,
         "w3rd": false,
         "wFinal": false
@@ -146,8 +146,8 @@
         "firstInGroup": true,
         "secondInGroup": false,
         "w32": true,
-        "w16": false,
-        "w8": false,
+        "w16": true,
+        "w8": true,
         "w4": false,
         "w3rd": false,
         "wFinal": false
