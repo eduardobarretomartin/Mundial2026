@@ -100,7 +100,7 @@
         "w32": true,
         "w16": true,
         "w8": true,
-        "w4": false,
+        "w4": true,
         "w3rd": false,
         "wFinal": false
       },
