@@ -558,6 +558,15 @@ const appController = {
     // Start countdown timer loop
     setInterval(() => this.updateCountdown(), 1000);
     this.updateCountdown();
+
+    // Show celebration overlay on initial load
+    const overlay = document.getElementById('celebration-overlay');
+    if (overlay && document.getElementById('tab-leaderboard').classList.contains('active')) {
+      overlay.classList.add('active');
+      setTimeout(() => {
+        overlay.classList.remove('active');
+      }, 5000);
+    }
   },
 
   bindEvents() {
@@ -573,6 +582,16 @@ const appController = {
         
         if (targetTab === 'tab-official-wc') {
           this.fetchOfficialData();
+        }
+
+        if (targetTab === 'tab-leaderboard') {
+          const overlay = document.getElementById('celebration-overlay');
+          if (overlay) {
+            overlay.classList.add('active');
+            setTimeout(() => {
+              overlay.classList.remove('active');
+            }, 5000);
+          }
         }
       });
     });

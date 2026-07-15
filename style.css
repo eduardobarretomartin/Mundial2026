@@ -1338,3 +1338,72 @@ header h1 {
   from { opacity: 0.4; }
   to { opacity: 1; }
 }
+
+/* Celebration Overlay */
+.celebration-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.celebration-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.celebration-image {
+  max-width: 80%;
+  max-height: 60vh;
+  object-fit: contain;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.marquee-banner {
+  width: 100%;
+  background: var(--color-primary);
+  color: #000;
+  padding: 1rem 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-glow-primary);
+}
+
+.marquee-banner.bottom {
+  background: var(--color-accent);
+  color: #fff;
+  box-shadow: 0 0 15px var(--color-accent);
+}
+
+.marquee-content {
+  display: inline-block;
+  animation: marquee 10s linear infinite;
+}
+
+.marquee-content span {
+  padding-right: 2rem;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
