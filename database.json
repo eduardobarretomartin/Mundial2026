@@ -102,7 +102,7 @@
         "w8": true,
         "w4": true,
         "w3rd": false,
-        "wFinal": false
+        "wFinal": true
       },
       "2": {
         "wins": 3,
@@ -125,7 +125,7 @@
         "w16": true,
         "w8": true,
         "w4": false,
-        "w3rd": false,
+        "w3rd": true,
         "wFinal": false
       },
       "4": {
@@ -669,7 +669,7 @@
         "wFinal": false
       }
     },
-    "topScorers": ""
+    "topScorers": "Mbappe"
   },
   "deadline": "2026-06-11T20:30:00",
   "ticketPrice": 10
