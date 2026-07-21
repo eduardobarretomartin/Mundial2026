@@ -244,7 +244,7 @@ function getParticipantPointsBreakdown(participant) {
     : [];
   
   const isTopScorerCorrect = activeScorers.length > 0 && 
-    activeScorers.includes(participant.topScorer.trim().toLowerCase());
+    activeScorers.some(scorer => participant.topScorer.trim().toLowerCase().includes(scorer));
     
   const topScorerPoints = isTopScorerCorrect ? 4 : 0;
   
@@ -520,6 +520,28 @@ const appController = {
   cachedGames: null,
   cachedGroups: null,
 
+  showCelebration() {
+    const overlay = document.getElementById('celebration-overlay');
+    const phase1 = document.getElementById('celebration-phase-1');
+    const phase2 = document.getElementById('celebration-phase-2');
+    
+    if (overlay && phase1 && phase2) {
+      overlay.classList.add('active');
+      phase1.classList.add('active');
+      phase2.classList.remove('active');
+      
+      setTimeout(() => {
+        phase1.classList.remove('active');
+        phase2.classList.add('active');
+        
+        setTimeout(() => {
+          overlay.classList.remove('active');
+          phase2.classList.remove('active');
+        }, 8000);
+      }, 6000);
+    }
+  },
+
   init() {
     loadState();
     
@@ -555,17 +577,12 @@ const appController = {
         console.log("Usando base de datos local / sin conexión:", err.message);
       });
       
-    // Start countdown timer loop
     setInterval(() => this.updateCountdown(), 1000);
     this.updateCountdown();
 
     // Show celebration overlay on initial load
-    const overlay = document.getElementById('celebration-overlay');
-    if (overlay && document.getElementById('tab-leaderboard').classList.contains('active')) {
-      overlay.classList.add('active');
-      setTimeout(() => {
-        overlay.classList.remove('active');
-      }, 5000);
+    if (document.getElementById('tab-leaderboard').classList.contains('active')) {
+      this.showCelebration();
     }
   },
 
@@ -585,13 +602,7 @@ const appController = {
         }
 
         if (targetTab === 'tab-leaderboard') {
-          const overlay = document.getElementById('celebration-overlay');
-          if (overlay) {
-            overlay.classList.add('active');
-            setTimeout(() => {
-              overlay.classList.remove('active');
-            }, 5000);
-          }
+          this.showCelebration();
         }
       });
     });

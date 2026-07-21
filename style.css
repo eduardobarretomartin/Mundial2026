@@ -1362,11 +1362,57 @@ header h1 {
   pointer-events: all;
 }
 
-.celebration-image {
-  max-width: 80%;
-  max-height: 60vh;
+.celebration-phase {
+  display: none;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+.celebration-phase.active {
+  display: flex;
+}
+.fullscreen-gif {
+  max-width: 100%;
+  max-height: 100vh;
+  object-fit: cover;
+  animation: none;
+}
+.celebration-images {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+}
+
+.dvd-wrapper-1, .dvd-wrapper-2 {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+}
+
+.celebration-image-dvd {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+}
+
+.dvd-bounce-x { animation: bounceX 3.5s linear infinite alternate; }
+.dvd-bounce-y { animation: bounceY 2.7s linear infinite alternate; }
+
+.dvd-bounce-x-alt { animation: bounceX 4.2s linear infinite alternate-reverse; }
+.dvd-bounce-y-alt { animation: bounceY 3.3s linear infinite alternate-reverse; }
+
+@keyframes bounceX {
+  0% { left: 0px; }
+  100% { left: calc(100% - 250px); }
+}
+
+@keyframes bounceY {
+  0% { top: 0px; }
+  100% { top: calc(100% - 250px); }
 }
 
 @keyframes popIn {
@@ -1378,15 +1424,19 @@ header h1 {
   width: 100%;
   background: var(--color-primary);
   color: #000;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
   overflow: hidden;
   white-space: nowrap;
   font-family: var(--font-heading);
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 900;
   text-transform: uppercase;
   box-shadow: var(--shadow-glow-primary);
 }
+
+.marquee-banner.second-top { background: #1e3a8a; color: #fff; box-shadow: 0 0 15px #1e3a8a; }
+.marquee-banner.third-top { background: #047857; color: #fff; box-shadow: 0 0 15px #047857;}
+.marquee-banner.bottom-top { background: #dc2626; color: #facc15; box-shadow: 0 0 15px #dc2626;}
 
 .marquee-banner.bottom {
   background: var(--color-accent);
