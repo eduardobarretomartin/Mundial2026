@@ -539,7 +539,7 @@ const appController = {
           overlay.classList.remove('active');
           phase2.classList.remove('active');
         }, 8000);
-      }, 6000);
+      }, 8000);
     }
   },
 
