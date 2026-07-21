@@ -240,11 +240,12 @@ function getParticipantPointsBreakdown(participant) {
   
   // Check Top Scorer
   const activeScorers = state.results.topScorers
-    ? state.results.topScorers.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== "")
+    ? state.results.topScorers.split(',').map(s => s.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()).filter(s => s !== "")
     : [];
   
+  const pScorer = participant.topScorer.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const isTopScorerCorrect = activeScorers.length > 0 && 
-    activeScorers.some(scorer => participant.topScorer.trim().toLowerCase().includes(scorer));
+    activeScorers.some(scorer => pScorer.includes(scorer));
     
   const topScorerPoints = isTopScorerCorrect ? 4 : 0;
   
